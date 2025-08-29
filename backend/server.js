@@ -10,9 +10,19 @@ require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
+
+// Configure allowed origins
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://personal-taskflow.netlify.app',
+  'https://personal-taskflow.netlify.app/',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"]
   }
 });
@@ -24,7 +34,29 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('combined'));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is in the allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    // Also check without trailing slash
+    const originWithoutSlash = origin.replace(/\/$/, '');
+    if (allowedOrigins.indexOf(originWithoutSlash) !== -1) {
+      return callback(null, true);
+    }
+    
+    // Also check with trailing slash
+    const originWithSlash = origin + '/';
+    if (allowedOrigins.indexOf(originWithSlash) !== -1) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
