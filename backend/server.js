@@ -154,6 +154,266 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Root endpoint - API documentation
+app.get('/', (req, res) => {
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://personal-taskmanager.onrender.com'
+    : `http://localhost:${PORT}`;
+
+  const endpoints = {
+    message: 'Personal Task Manager API',
+    version: '1.0.0',
+    baseUrl: baseUrl,
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      authentication: {
+        register: {
+          method: 'POST',
+          path: '/api/auth/register',
+          description: 'Register a new user',
+          body: '{name, email, password}'
+        },
+        login: {
+          method: 'POST',
+          path: '/api/auth/login',
+          description: 'User login',
+          body: '{email, password}'
+        },
+        profile: {
+          method: 'GET',
+          path: '/api/auth/profile',
+          description: 'Get user profile',
+          auth: 'JWT token required'
+        },
+        updateProfile: {
+          method: 'PUT',
+          path: '/api/auth/profile',
+          description: 'Update user profile',
+          body: '{name, email}',
+          auth: 'JWT token required'
+        },
+        changePassword: {
+          method: 'PUT',
+          path: '/api/auth/password',
+          description: 'Change password',
+          body: '{currentPassword, newPassword}',
+          auth: 'JWT token required'
+        }
+      },
+      tasks: {
+        getAll: {
+          method: 'GET',
+          path: '/api/tasks',
+          description: 'Get all tasks with pagination',
+          query: 'page, limit, status, priority, type',
+          auth: 'JWT token required'
+        },
+        create: {
+          method: 'POST',
+          path: '/api/tasks',
+          description: 'Create new task',
+          body: '{title, description, type, priority, dueDate, tags, isRecurring}',
+          auth: 'JWT token required'
+        },
+        getById: {
+          method: 'GET',
+          path: '/api/tasks/:id',
+          description: 'Get single task',
+          auth: 'JWT token required'
+        },
+        update: {
+          method: 'PUT',
+          path: '/api/tasks/:id',
+          description: 'Update task',
+          auth: 'JWT token required'
+        },
+        delete: {
+          method: 'DELETE',
+          path: '/api/tasks/:id',
+          description: 'Delete task',
+          auth: 'JWT token required'
+        },
+        complete: {
+          method: 'PUT',
+          path: '/api/tasks/:id/complete',
+          description: 'Mark task as complete',
+          auth: 'JWT token required'
+        },
+        uncomplete: {
+          method: 'PUT',
+          path: '/api/tasks/:id/uncomplete',
+          description: 'Mark task as incomplete',
+          auth: 'JWT token required'
+        },
+        remind: {
+          method: 'POST',
+          path: '/api/tasks/:id/remind',
+          description: 'Send reminder for task',
+          auth: 'JWT token required'
+        },
+        stats: {
+          method: 'GET',
+          path: '/api/tasks/stats/summary',
+          description: 'Get task statistics',
+          auth: 'JWT token required'
+        },
+        detailedStats: {
+          method: 'GET',
+          path: '/api/tasks/stats/detailed',
+          description: 'Get detailed task statistics',
+          auth: 'JWT token required'
+        },
+        overdue: {
+          method: 'GET',
+          path: '/api/tasks/overdue',
+          description: 'Get overdue tasks',
+          auth: 'JWT token required'
+        },
+        upcoming: {
+          method: 'GET',
+          path: '/api/tasks/upcoming',
+          description: 'Get upcoming tasks',
+          auth: 'JWT token required'
+        },
+        bulkDelete: {
+          method: 'POST',
+          path: '/api/tasks/bulk-delete',
+          description: 'Delete multiple tasks',
+          body: '{taskIds: []}',
+          auth: 'JWT token required'
+        },
+        bulkUpdate: {
+          method: 'PUT',
+          path: '/api/tasks/bulk-update',
+          description: 'Update multiple tasks',
+          body: '{taskIds: [], updates: {}}',
+          auth: 'JWT token required'
+        },
+        bulkComplete: {
+          method: 'POST',
+          path: '/api/tasks/bulk-complete',
+          description: 'Complete multiple tasks',
+          body: '{taskIds: []}',
+          auth: 'JWT token required'
+        }
+      },
+      notifications: {
+        testEmail: {
+          method: 'POST',
+          path: '/api/notifications/test/email',
+          description: 'Test email sending',
+          body: '{email, subject, message}',
+          auth: 'JWT token required'
+        },
+        status: {
+          method: 'GET',
+          path: '/api/notifications/status',
+          description: 'Get notification service status',
+          auth: 'JWT token required'
+        },
+        quota: {
+          method: 'GET',
+          path: '/api/notifications/quota',
+          description: 'Get email quota information',
+          auth: 'JWT token required'
+        },
+        sendCustom: {
+          method: 'POST',
+          path: '/api/notifications/send/custom',
+          description: 'Send custom notification',
+          body: '{email, message, type}',
+          auth: 'JWT token required'
+        }
+      },
+      test: {
+        email: {
+          method: 'POST',
+          path: '/api/test/email',
+          description: 'Test basic email functionality',
+          body: '{email, subject, message}'
+        },
+        gmailConfig: {
+          method: 'GET',
+          path: '/api/test/gmail-config',
+          description: 'Check Gmail SMTP configuration'
+        },
+        gmailTaskEmail: {
+          method: 'POST',
+          path: '/api/test/gmail-task-email',
+          description: 'Test task-specific email',
+          body: '{email, emailType, taskType, title, description, priority}'
+        },
+        gmailQuota: {
+          method: 'GET',
+          path: '/api/test/gmail-quota',
+          description: 'Get Gmail quota information'
+        },
+        serviceStatus: {
+          method: 'GET',
+          path: '/api/test/service-status',
+          description: 'Get comprehensive service status'
+        },
+        fullNotification: {
+          method: 'POST',
+          path: '/api/test/full-notification',
+          description: 'Test full notification system',
+          body: '{email, message}'
+        },
+        customMessage: {
+          method: 'POST',
+          path: '/api/test/custom-message',
+          description: 'Test custom message generation',
+          body: '{taskType, priority, title, description, messageType}'
+        },
+        taskTypes: {
+          method: 'GET',
+          path: '/api/test/task-types',
+          description: 'Get available task types'
+        },
+        bulkEmail: {
+          method: 'POST',
+          path: '/api/test/bulk-email',
+          description: 'Test bulk email sending',
+          body: '{emails[], subject, message}'
+        },
+        customTaskNotification: {
+          method: 'POST',
+          path: '/api/test/custom-task-notification',
+          description: 'Test custom task notifications',
+          body: '{email, taskData, customMessages}'
+        },
+        validateMessage: {
+          method: 'POST',
+          path: '/api/test/validate-message',
+          description: 'Validate message content',
+          body: '{message, messageType}'
+        }
+      },
+      health: {
+        check: {
+          method: 'GET',
+          path: '/api/health',
+          description: 'Health check endpoint'
+        }
+      }
+    },
+    authentication: {
+      type: 'JWT Bearer Token',
+      header: 'Authorization: Bearer <token>',
+      note: 'Required for all endpoints except auth/* and test/*'
+    },
+    responseFormat: {
+      success: 'boolean',
+      message: 'string',
+      data: 'object (on success)',
+      error: 'string (on failure)'
+    }
+  };
+
+  res.json(endpoints);
+});
+
 // Load routes safely
 console.log('Loading routes...');
 
