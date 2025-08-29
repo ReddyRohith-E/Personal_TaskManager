@@ -1,0 +1,33 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with rounded corners for iOS -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ccfbf1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded rectangle background for iOS -->
+  <rect x="0" y="0" width="180" height="180" rx="28" fill="url(#bgGradient)"/>
+  
+  <!-- Task list background -->
+  <rect x="30" y="50" width="120" height="80" rx="8" fill="#ffffff" fill-opacity="0.1" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
+  
+  <!-- Task list lines -->
+  <rect x="45" y="70" width="90" height="8" rx="4" fill="url(#checkGradient)" opacity="0.9"/>
+  <rect x="45" y="88" width="75" height="8" rx="4" fill="url(#checkGradient)" opacity="0.7"/>
+  <rect x="45" y="106" width="82" height="8" rx="4" fill="url(#checkGradient)" opacity="0.5"/>
+  
+  <!-- Large checkmark -->
+  <path d="M42 90L60 108L105 63" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Productivity indicator -->
+  <circle cx="125" cy="65" r="10" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- TaskFlow text -->
+  <text x="90" y="150" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">TaskFlow</text>
+</svg>
