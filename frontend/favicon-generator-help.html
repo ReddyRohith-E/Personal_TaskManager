@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .instructions { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Favicon Generator Instructions</h1>
+        
+        <div class="instructions">
+            <h3>Quick Fix Options:</h3>
+            
+            <h4>Option 1: Use Online Converter</h4>
+            <ol>
+                <li>Go to <a href="https://favicon.io/favicon-converter/" target="_blank">favicon.io/favicon-converter/</a></li>
+                <li>Upload your <code>favicon.svg</code> file from the public folder</li>
+                <li>Download the generated <code>favicon.ico</code></li>
+                <li>Place it in your <code>public/</code> folder</li>
+            </ol>
+            
+            <h4>Option 2: Use RealFaviconGenerator</h4>
+            <ol>
+                <li>Go to <a href="https://realfavicongenerator.net/" target="_blank">realfavicongenerator.net</a></li>
+                <li>Upload your <code>favicon.svg</code> file</li>
+                <li>Download the complete favicon package</li>
+                <li>Replace files in your <code>public/</code> folder</li>
+            </ol>
+            
+            <h4>Option 3: Convert SVG with ImageMagick (if installed)</h4>
+            <pre>convert favicon.svg -resize 32x32 favicon.ico</pre>
+        </div>
+        
+        <p><strong>Current favicon.svg location:</strong> <code>frontend/public/favicon.svg</code></p>
+        <p><strong>Target location:</strong> <code>frontend/public/favicon.ico</code></p>
+    </div>
+</body>
+</html>

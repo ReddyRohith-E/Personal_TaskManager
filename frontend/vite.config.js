@@ -14,8 +14,13 @@ export default defineConfig({
           router: ['react-router-dom']
         }
       }
-    }
+    },
+    // Ensure public assets are copied correctly
+    assetsDir: 'assets',
+    copyPublicDir: true
   },
+  // Explicitly include favicon files in public assets
+  publicDir: 'public',
   server: {
     proxy: {
       '/api': {
