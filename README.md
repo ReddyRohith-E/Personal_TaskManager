@@ -1,6 +1,6 @@
-# Personal Task Manager - Netlify + Fly.io Deployment
+# Personal Task Manager - Netlify + Render Deployment
 
-A full-stack task management application with real-time notifications, countdown timers, and comprehensive task organization features. **✅ READY FOR NETLIFY + FLY.IO DEPLOYMENT**
+A full-stack task management application with real-time notifications, countdown timers, and comprehensive task organization features. **✅ READY FOR NETLIFY + RENDER DEPLOYMENT**
 
 ## 🚀 Deployment Status
 ## 🌍 Environment Variables Reference
@@ -9,7 +9,7 @@ A full-stack task management application with real-time notifications, countdown
 | Variable | Description | Development | Production |
 |----------|-------------|-------------|------------|
 | `NODE_ENV` | Environment mode | `development` | `production` |
-| `PORT` | Backend port | `5000` | Auto-set by Fly.io |
+| `PORT` | Backend port | `5000` | Auto-set by Render |
 | `MONGODB_URI` | Database connection | Your MongoDB Atlas URI | Same |
 | `JWT_SECRET` | JWT signing key | Your secret | Same |
 | `GMAIL_USER` | Gmail username | your_gmail@gmail.com | Same |
@@ -19,21 +19,21 @@ A full-stack task management application with real-time notifications, countdown
 ### Frontend (.env in /frontend/)
 | Variable | Description | Development | Production |
 |----------|-------------|-------------|------------|
-| `VITE_API_URL` | Backend API URL | `http://localhost:5000/api` | `https://your-fly-app.fly.dev/api` |
-| `VITE_SOCKET_URL` | Socket.io URL | `http://localhost:5000` | `https://your-fly-app.fly.dev` |FY + FLY.IO DEPLOYMENT**
+| `VITE_API_URL` | Backend API URL | `http://localhost:5000/api` | `https://your-render-app.onrender.com/api` |
+| `VITE_SOCKET_URL` | Socket.io URL | `http://localhost:5000` | `https://your-render-app.onrender.com` |FY + FLY.IO DEPLOYMENT**
 - **Frontend**: Netlify (static hosting with CDN)
-- **Backend**: Fly.io (Docker containerized Node.js)
+- **Backend**: Render (Node.js web service)
 - **Database**: MongoDB Atlas (cloud)
 - **Real-time**: Socket.io enabled for live updates
 - **Environment**: Separate environment variables for each service
 
 ## 🎯 Key Advantages
 
-✅ **Optimized Performance**: Netlify's global CDN for frontend, Fly.io's containerized backend  
-✅ **Scalable Backend**: Fly.io handles traffic spikes better than serverless  
-✅ **Cost Effective**: Generous free tiers on both platforms  
-✅ **Easy Deployment**: Simple git-based deployments  
-✅ **Real-time Features**: Socket.io works seamlessly across platforms  
+✅ **Simple Deployment**: Render's one-click deployment from GitHub  
+✅ **Auto-Scaling**: Render handles traffic spikes automatically  
+✅ **Free Tier**: Generous free tier for small applications  
+✅ **Managed Service**: No server management required  
+✅ **Real-time Ready**: Socket.io works seamlessly with persistent backend  
 
 ## 🚀 Key Features
 
@@ -144,42 +144,53 @@ cd ../frontend && npm install
 cd .. && npm run dev
 ```
 
-### Deployment to Netlify + Fly.io
+### Uptime Pinger Setup
 
-#### 1. Backend Deployment (Fly.io)
+To keep your Render backend alive and avoid cold starts:
 
-1. **Install Fly CLI**
+**Option 1: GitHub Actions (Recommended)**
+1. Add `RENDER_BACKEND_URL` secret in GitHub repo settings
+2. The workflow automatically pings every 8 minutes
+
+**Option 2: Local Pinger**
 ```bash
-# Windows (PowerShell)
-iwr https://fly.io/install.ps1 -useb | iex
+# Set your backend URL
+set BACKEND_URL=https://your-render-app.onrender.com
+
+# Run the pinger
+node uptime-pinger.js
 ```
 
-2. **Login to Fly.io**
-```bash
-fly auth login
-```
+**Option 3: Third-party Services**
+- UptimeRobot (free tier available)
+- Cron-job.org
+- Other monitoring services
 
-3. **Initialize Fly app**
-```bash
-cd backend
-fly launch
-# Follow prompts, choose region, etc.
-```
+### Deployment to Netlify + Render
 
-4. **Set Environment Variables**
-```bash
-fly secrets set NODE_ENV=production
-fly secrets set MONGODB_URI=your_mongodb_atlas_uri
-fly secrets set JWT_SECRET=your_jwt_secret
-fly secrets set GMAIL_USER=your_gmail@gmail.com
-fly secrets set GMAIL_APP_PASSWORD=your_app_password
-fly secrets set FRONTEND_URL=https://your-netlify-site.netlify.app
-```
+#### 1. Backend Deployment (Render)
 
-5. **Deploy Backend**
-```bash
-fly deploy
-```
+1. **Connect Repository**
+   - Go to [Render](https://render.com)
+   - Connect your GitHub repository
+   - Choose "Web Service" for Node.js
+
+2. **Configure Build Settings**
+   - **Runtime**: Node.js
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Root Directory**: `backend`
+
+3. **Set Environment Variables**
+   - `NODE_ENV`: `production`
+   - `MONGODB_URI`: Your MongoDB Atlas URI
+   - `JWT_SECRET`: Your JWT secret
+   - `GMAIL_USER`: Your Gmail address
+   - `GMAIL_APP_PASSWORD`: Your Gmail app password
+   - `FRONTEND_URL`: `https://your-netlify-site.netlify.app`
+
+4. **Deploy Backend**
+   - Render will automatically deploy when you push to main branch
 
 #### 2. Frontend Deployment (Netlify)
 
@@ -190,8 +201,8 @@ fly deploy
    - Set publish directory: `dist`
 
 2. **Set Environment Variables in Netlify**
-   - `VITE_API_URL`: `https://your-fly-app.fly.dev/api`
-   - `VITE_SOCKET_URL`: `https://your-fly-app.fly.dev`
+   - `VITE_API_URL`: `https://your-render-app.onrender.com/api`
+   - `VITE_SOCKET_URL`: `https://your-render-app.onrender.com`
 
 3. **Deploy Frontend**
    - Push to main branch or trigger manual deploy
@@ -201,18 +212,24 @@ fly deploy
 ```
 ToDo/
 ├── .env.example                    # ← Environment variables template
+├── .github/
+│   └── workflows/
+│       └── uptime-pinger.yml      # ← GitHub Actions uptime pinger
+├── uptime-pinger.js               # ← Local uptime pinger script
+├── uptime-pinger-package.json     # ← Pinger dependencies
+├── start-pinger.bat               # ← Windows startup script
+├── start-pinger.sh                # ← Linux/Mac startup script
+├── UPTIME-PINGER-README.md        # ← Pinger documentation
 ├── backend/
 │   ├── .env                        # ← Backend environment variables
 │   ├── server.js                   # ← Loads .env from backend directory
-│   ├── package.json
-│   ├── Dockerfile
-│   ├── fly.toml
+│   ├── package.json                # ← Backend dependencies
 │   └── ... (other backend files)
 ├── frontend/
 │   ├── .env                        # ← Frontend environment variables
 │   ├── vite.config.js              # ← Loads .env from frontend directory
-│   ├── package.json
-│   ├── netlify.toml
+│   ├── package.json                # ← Frontend dependencies
+│   ├── netlify.toml                # ← Netlify deployment config
 │   └── ... (other frontend files)
 └── README.md
 ```
@@ -302,17 +319,16 @@ npm run clean          # Clean all node_modules and dist folders
 
 ## 🆚 Deployment Benefits
 
-### Netlify + Fly.io Advantages
-✅ **Global CDN**: Netlify's worldwide CDN for fast frontend loading  
-✅ **Containerized Backend**: Fly.io runs your app in Docker containers  
-✅ **Persistent Connections**: Fly.io keeps your backend running 24/7  
+### Netlify + Render Advantages
+✅ **Simple Deployment**: Render's one-click deployment from GitHub  
+✅ **Managed Service**: Render handles server management and scaling  
+✅ **Persistent Connections**: Render keeps your backend running continuously  
 ✅ **Real-time Ready**: Socket.io works perfectly with persistent backend  
-✅ **Easy Scaling**: Both platforms scale automatically  
-✅ **Developer Friendly**: Great developer experience and tooling  
+✅ **Developer Friendly**: Easy environment variable management  
 
 ### Architecture Overview
 - **Frontend**: React SPA hosted on Netlify
-- **Backend**: Node.js API running on Fly.io
+- **Backend**: Node.js API running on Render
 - **Database**: MongoDB Atlas (cloud)
 - **Real-time**: Socket.io for live updates
 - **Email**: Gmail SMTP for notifications
@@ -328,5 +344,3 @@ npm run clean          # Clean all node_modules and dist folders
 MIT License - see LICENSE file for details
 
 ---
-
-**Ready for deployment!** 🚀 Your app is now configured for optimal performance on Netlify + Fly.io.

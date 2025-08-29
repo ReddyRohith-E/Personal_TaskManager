@@ -1,0 +1,46 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # Run every 8 minutes
+    - cron: '*/8 * * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ping Render Backend
+      env:
+        RENDER_BACKEND_URL: https://personal-taskflow.onrender.com
+      run: |
+        echo "🌐 Pinging Render backend to keep it alive..."
+        # Replace with your actual Render backend URL
+        BACKEND_URL="$RENDER_BACKEND_URL"
+        # Replace with your actual Render backend URL
+        BACKEND_URL="https://personal-taskflow.onrender.com"
+
+        if [ -z "$BACKEND_URL" ]; then
+          echo "❌ RENDER_BACKEND_URL secret is not set!"
+          exit 1
+        fi
+
+        HEALTH_ENDPOINT="${BACKEND_URL}/api/health"
+
+        echo "[$TIMESTAMP] Pinging: $HEALTH_ENDPOINT"
+
+        # Make the HTTP request
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: GitHub-Actions-Uptime-Pinger/1.0" "$HEALTH_ENDPOINT")
+
+        if [ "$HTTP_CODE" -eq 200 ]; then
+          echo "✅ [$TIMESTAMP] Backend is alive! Status: $HTTP_CODE"
+        else
+          echo "⚠️  [$TIMESTAMP] Backend responded with status: $HTTP_CODE"
+          # Don't fail the workflow for non-200 responses, just log it
+        fi
+
+    - name: Log ping result
+      run: |
+        echo "⏰ Next ping in 8 minutes..."
+        echo "📊 Workflow completed successfully"

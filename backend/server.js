@@ -13,7 +13,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const app = express();
 const server = http.createServer(app);
 
-// Configure allowed origins - Netlify and Fly.io deployment
+// Configure allowed origins - Netlify and Render deployment
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',

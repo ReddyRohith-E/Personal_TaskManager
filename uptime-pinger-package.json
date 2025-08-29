@@ -1,0 +1,19 @@
+{
+  "name": "render-uptime-pinger",
+  "version": "1.0.0",
+  "description": "Keep Render backend alive by pinging it every 8 minutes",
+  "main": "uptime-pinger.js",
+  "scripts": {
+    "start": "node uptime-pinger.js",
+    "dev": "node uptime-pinger.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["render", "uptime", "pinger", "keep-alive"],
+  "author": "Your Name",
+  "license": "MIT"
+}
