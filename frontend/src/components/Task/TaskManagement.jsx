@@ -611,6 +611,7 @@ const TaskManagement = () => {
           right: isMobile ? 16 : 32,
         }}
         onClick={() => setFormOpen(true)}
+        disabled={formOpen}
       >
         <AddIcon />
       </Fab>
@@ -633,6 +634,8 @@ const TaskManagement = () => {
         onClose={() => setTestNotificationDialog({ open: false, task: null, type: null, email: '' })}
         maxWidth="sm"
         fullWidth
+        disableEnforceFocus={false}
+        disableAutoFocus={false}
       >
         <DialogTitle>
           Test {testNotificationDialog.type === 'custom' ? 'Custom' : 'Email'} Notification

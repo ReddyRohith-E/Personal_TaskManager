@@ -51,14 +51,12 @@ const Register = () => {
       setError('');
       const { confirmPassword, ...userData } = data;
       
-      // Combine first and last name for the backend
+      // Send data in the format expected by backend
       const registrationData = {
-        ...userData,
-        name: `${userData.firstName} ${userData.lastName}`,
-        profile: {
-          firstName: userData.firstName,
-          lastName: userData.lastName
-        }
+        email: userData.email,
+        password: userData.password,
+        firstName: userData.firstName,
+        lastName: userData.lastName
       };
       
       await registerUser(registrationData);

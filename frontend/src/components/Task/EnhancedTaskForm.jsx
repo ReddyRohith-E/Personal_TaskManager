@@ -334,6 +334,8 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
         maxWidth="md" 
         fullWidth
         fullScreen={isMobile}
+        disableEnforceFocus={false}
+        disableAutoFocus={false}
       >
         <DialogTitle>
           <Box display="flex" alignItems="center" gap={1}>

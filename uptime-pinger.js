@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const BACKEND_URL = process.env.BACKEND_URL || 'https://personal-taskmanager.onrender.com';
 const HEALTH_ENDPOINT = `${BACKEND_URL}/api/health`;

@@ -13,7 +13,7 @@ jobs:
     steps:
     - name: Ping Render Backend
       env:
-        RENDER_BACKEND_URL: https://personal-taskflow.onrender.com
+        RENDER_BACKEND_URL: https://personal-taskmanager.onrender.com
       run: |
         echo "🌐 Pinging Render backend to keep it alive..."
         # Use the actual Render backend URL
