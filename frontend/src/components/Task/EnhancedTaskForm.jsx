@@ -42,6 +42,8 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { TaskTypeChip } from '../UI/TaskTypeChip';
 
 const TASK_TYPES = [
@@ -65,6 +67,7 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
     title: '',
     description: '',
     dueDate: null,
+    dueTime: null,
     reminderTime: null,
     priority: 'medium',
     type: 'other',
@@ -99,6 +102,28 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
   const [errors, setErrors] = useState({});
   const [previewMessage, setPreviewMessage] = useState('');
 
+  // Helper function to combine date and time
+  const combineDateTime = (date, time) => {
+    if (!date || !time) return null;
+    const combined = new Date(date);
+    combined.setHours(time.getHours());
+    combined.setMinutes(time.getMinutes());
+    combined.setSeconds(0);
+    combined.setMilliseconds(0);
+    return combined;
+  };
+
+  // Helper function to check if a date/time is in the past
+  const isPastDateTime = (dateTime) => {
+    if (!dateTime) return false;
+    return new Date(dateTime) < new Date();
+  };
+
+  // Helper function to get combined due date/time
+  const getCombinedDueDateTime = () => {
+    return combineDateTime(formData.dueDate, formData.dueTime);
+  };
+
   useEffect(() => {
     const defaultCustomNotifications = {
       email: { enabled: true, subject: '', body: '' },
@@ -106,9 +131,11 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
     };
 
     if (task && isEditing) {
+      const dueDateObj = task.dueDate ? new Date(task.dueDate) : null;
       setFormData({
         ...task,
-        dueDate: task.dueDate ? new Date(task.dueDate) : null,
+        dueDate: dueDateObj,
+        dueTime: dueDateObj,
         reminderTime: task.reminderTime ? new Date(task.reminderTime) : null,
         reminders: task.reminders || [],
         customNotifications: {
@@ -127,6 +154,7 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
         title: '',
         description: '',
         dueDate: null,
+        dueTime: null,
         reminderTime: null,
         priority: 'medium',
         type: 'other',
@@ -184,10 +212,20 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
 
   const handleAddReminder = () => {
     if (currentReminder.time) {
-      if (formData.dueDate && new Date(currentReminder.time) >= new Date(formData.dueDate)) {
+      // Check if reminder time is in the past
+      if (isPastDateTime(currentReminder.time)) {
         setErrors(prev => ({
           ...prev,
-          reminderTime: 'Reminder time must be before due date'
+          currentReminderTime: 'Cannot set reminder for past time'
+        }));
+        return;
+      }
+
+      const combinedDueDateTime = getCombinedDueDateTime();
+      if (combinedDueDateTime && new Date(currentReminder.time) >= combinedDueDateTime) {
+        setErrors(prev => ({
+          ...prev,
+          currentReminderTime: 'Reminder time must be before due date and time'
         }));
         return;
       }
@@ -209,6 +247,12 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
           email: { subject: '', body: '' }
         }
       });
+
+      // Clear any existing errors
+      setErrors(prev => ({
+        ...prev,
+        currentReminderTime: ''
+      }));
     }
   };
 
@@ -226,13 +270,16 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
       newErrors.title = 'Title is required';
     }
 
-    if (!formData.dueDate) {
-      newErrors.dueDate = 'Due date is required';
+    const combinedDueDateTime = getCombinedDueDateTime();
+    if (!formData.dueDate || !formData.dueTime) {
+      newErrors.dueDateTime = 'Both due date and time are required';
+    } else if (isPastDateTime(combinedDueDateTime)) {
+      newErrors.dueDateTime = 'Cannot set due date and time in the past';
     }
 
-    if (formData.reminderTime && formData.dueDate && 
-        new Date(formData.reminderTime) >= new Date(formData.dueDate)) {
-      newErrors.reminderTime = 'Reminder time must be before due date';
+    if (formData.reminderTime && combinedDueDateTime && 
+        new Date(formData.reminderTime) >= combinedDueDateTime) {
+      newErrors.reminderTime = 'Reminder time must be before due date and time';
     }
 
     // Validate email subject length
@@ -253,9 +300,10 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
 
   const handleSubmit = () => {
     if (validateForm()) {
+      const combinedDueDateTime = getCombinedDueDateTime();
       const submitData = {
         ...formData,
-        dueDate: formData.dueDate ? formData.dueDate.toISOString() : null,
+        dueDate: combinedDueDateTime ? combinedDueDateTime.toISOString() : null,
         reminderTime: formData.reminderTime ? formData.reminderTime.toISOString() : null,
         reminders: formData.reminders.map(reminder => ({
           ...reminder,
@@ -268,10 +316,11 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
 
   const generatePreview = (type) => {
     // This would typically call an API endpoint to generate preview
+    const combinedDueDateTime = getCombinedDueDateTime();
     const mockGenerator = {
       custom: `📋 Reminder: ${formData.title} is due soon! Type: ${formData.type}`,
       email_subject: `⏰ Task Reminder: ${formData.title}`,
-      email_body: `Hello!\n\nThis is a reminder for your ${formData.type} task:\n\n"${formData.title}"\n\nDue: ${formData.dueDate ? formData.dueDate.toLocaleString() : 'No date set'}\n\nPriority: ${formData.priority}\n\nDescription: ${formData.description || 'No description'}\n\nBest regards,\nYour Task Manager`
+      email_body: `Hello!\n\nThis is a reminder for your ${formData.type} task:\n\n"${formData.title}"\n\nDue: ${combinedDueDateTime ? combinedDueDateTime.toLocaleString() : 'No date/time set'}\n\nPriority: ${formData.priority}\n\nDescription: ${formData.description || 'No description'}\n\nBest regards,\nYour Task Manager`
     };
     
     setPreviewMessage(mockGenerator[type] || '');
@@ -367,28 +416,59 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
                 </FormControl>
               </Grid>
               
-              {/* Dates */}
+              {/* Dates and Times */}
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom>
+                  Due Date & Time
+                </Typography>
+              </Grid>
+              
               <Grid item xs={12} sm={6}>
-                <DateTimePicker
+                <DatePicker
                   label="Due Date"
                   value={formData.dueDate}
                   onChange={(date) => handleChange('dueDate', date)}
+                  format="dd-MM-yyyy"
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      error: !!errors.dueDate,
-                      helperText: errors.dueDate,
+                      error: !!errors.dueDateTime,
+                      required: true
+                    }
+                  }}
+                  minDate={new Date()}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <TimePicker
+                  label="Due Time"
+                  value={formData.dueTime}
+                  onChange={(time) => handleChange('dueTime', time)}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.dueDateTime,
                       required: true
                     }
                   }}
                 />
               </Grid>
               
+              {errors.dueDateTime && (
+                <Grid item xs={12}>
+                  <Alert severity="error" sx={{ mt: 1 }}>
+                    {errors.dueDateTime}
+                  </Alert>
+                </Grid>
+              )}
+              
               <Grid item xs={12} sm={6}>
                 <DateTimePicker
                   label="Legacy Reminder Time"
                   value={formData.reminderTime}
                   onChange={(date) => handleChange('reminderTime', date)}
+                  format="dd-MM-yyyy HH:mm"
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -396,6 +476,7 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
                       helperText: errors.reminderTime || 'Optional: Use multiple reminders below for more control'
                     }
                   }}
+                  minDateTime={new Date()}
                 />
               </Grid>
               
@@ -474,19 +555,57 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
                         Add New Reminder
                       </Typography>
                       
-                      <Box sx={{ mb: 2 }}>
-                        <DateTimePicker
-                          label="Reminder Time"
-                          value={currentReminder.time}
-                          onChange={(date) => setCurrentReminder(prev => ({ ...prev, time: date }))}
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              size: "small"
-                            }
-                          }}
-                        />
-                      </Box>
+                      <Grid container spacing={2} sx={{ mb: 2 }}>
+                        <Grid item xs={12} sm={6}>
+                          <DatePicker
+                            label="Reminder Date"
+                            value={currentReminder.time}
+                            onChange={(date) => setCurrentReminder(prev => ({ ...prev, time: date }))}
+                            format="dd-MM-yyyy"
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                size: "small",
+                                error: !!errors.currentReminderTime
+                              }
+                            }}
+                            minDate={new Date()}
+                          />
+                        </Grid>
+                        
+                        <Grid item xs={12} sm={6}>
+                          <TimePicker
+                            label="Reminder Time"
+                            value={currentReminder.time}
+                            onChange={(time) => {
+                              if (currentReminder.time) {
+                                const combined = new Date(currentReminder.time);
+                                combined.setHours(time.getHours());
+                                combined.setMinutes(time.getMinutes());
+                                setCurrentReminder(prev => ({ ...prev, time: combined }));
+                              } else {
+                                const now = new Date();
+                                now.setHours(time.getHours());
+                                now.setMinutes(time.getMinutes());
+                                setCurrentReminder(prev => ({ ...prev, time: now }));
+                              }
+                            }}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                size: "small",
+                                error: !!errors.currentReminderTime
+                              }
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                      
+                      {errors.currentReminderTime && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                          {errors.currentReminderTime}
+                        </Alert>
+                      )}
                       
                       <TextField
                         fullWidth
@@ -692,7 +811,7 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
           <Button 
             variant="contained" 
             onClick={handleSubmit}
-            disabled={!formData.title.trim() || !formData.dueDate}
+            disabled={!formData.title.trim() || !formData.dueDate || !formData.dueTime}
           >
             {isEditing ? 'Update Task' : 'Create Task'}
           </Button>

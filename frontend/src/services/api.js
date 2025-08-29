@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Updated API configuration for single-platform deployment
+const getApiBaseUrl = () => {
+  // If we're in production and on the same domain, use relative paths
+  if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+    return '/api';
+  }
+  // Otherwise use the provided URL or localhost for development
+  return import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 const IS_PRODUCTION = import.meta.env.PROD;
 
 // Create axios instance with CORS-friendly configuration
@@ -13,14 +23,12 @@ const api = axios.create({
   },
   // Enable credentials for CORS
   withCredentials: true,
-  // Additional CORS configurations
-  crossdomain: true,
 });
 
-// Add CORS preflight handling
-api.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-api.defaults.headers.common['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS';
-api.defaults.headers.common['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
+// Remove manual CORS headers - let the browser and server handle CORS properly
+// api.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+// api.defaults.headers.common['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS';
+// api.defaults.headers.common['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
 
 // Request interceptor to add auth token and handle CORS
 api.interceptors.request.use(
@@ -30,7 +38,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Add additional headers for CORS compatibility
+    // Add X-Requested-With header for CSRF protection
     config.headers['X-Requested-With'] = 'XMLHttpRequest';
     
     // Handle different environments

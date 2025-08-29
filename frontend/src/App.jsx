@@ -11,18 +11,13 @@ import Tasks from './pages/Tasks'
 import Profile from './pages/Profile'
 import MessageTesting from './pages/MessageTesting'
 import PrivateRoute from './components/PrivateRoute'
-import CORSDebugger from './components/common/CORSDebugger'
 
 function App() {
-  // Show CORS debugger in development or when CORS debug is enabled
-  const showCORSDebugger = !import.meta.env.PROD || localStorage.getItem('cors-debug') === 'true';
-
   return (
     <CustomThemeProvider>
       <AuthProvider>
         <SocketProvider>
           <TaskProvider>
-            {showCORSDebugger && <CORSDebugger isVisible={!import.meta.env.PROD} />}
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

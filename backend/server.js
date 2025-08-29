@@ -6,24 +6,28 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const http = require('http');
 const socketIo = require('socket.io');
-require('dotenv').config();
+const path = require('path');
+// Load environment variables from root directory
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const app = express();
 const server = http.createServer(app);
 
-// Configure allowed origins
+// Configure allowed origins - Vercel deployment only
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://personal-taskflow.netlify.app',
-  'https://personal-taskflow.netlify.app/',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  // Add your custom Vercel domain here when you set it up
+  // 'https://your-app-name.vercel.app'
 ].filter(Boolean);
 
 const io = socketIo(server, {
   cors: {
     origin: allowedOrigins,
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    credentials: true
   }
 });
 
@@ -57,7 +61,51 @@ app.use(cors({
     
     return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ]
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    const originWithoutSlash = origin.replace(/\/$/, '');
+    if (allowedOrigins.indexOf(originWithoutSlash) !== -1) {
+      return callback(null, true);
+    }
+    
+    const originWithSlash = origin + '/';
+    if (allowedOrigins.indexOf(originWithSlash) !== -1) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ]
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -68,6 +116,11 @@ const limiter = rateLimit({
   max: 100
 });
 app.use(limiter);
+
+// Serve static files from frontend build (for Vercel)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+}
 
 // Connect to MongoDB using centralized database config
 const connectDB = require('./config/database');
@@ -146,6 +199,13 @@ app.use('/api/*', (req, res) => {
     message: 'API endpoint not found' 
   });
 });
+
+// Serve frontend for all non-API routes (SPA routing)
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  });
+}
 
 // Error handling middleware - move this before the last app.use call
 app.use((error, req, res, next) => {
@@ -236,7 +296,14 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// For Vercel, we need to export the app instead of starting the server
+if (process.env.VERCEL) {
+  // Initialize database connection for Vercel
+  connectDB().catch(console.error);
+  module.exports = app;
+} else {
+  startServer();
+}
 
 // Graceful shutdown
 const gracefulShutdown = async (signal) => {

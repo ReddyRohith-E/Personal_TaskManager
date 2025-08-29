@@ -24,9 +24,10 @@ export const CORS_CONFIG = {
   // Production configuration
   production: {
     allowedOrigins: [
-      'https://personal-taskflow.netlify.app',
-      'https://taskmanager-4mej.onrender.com'
-    ],
+      import.meta.env.VITE_FRONTEND_URL,
+      import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : undefined,
+      // Will be updated with your Vercel domain
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     headers: [

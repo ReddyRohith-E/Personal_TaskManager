@@ -42,6 +42,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme as useCustomTheme } from '../../theme/ThemeContext';
 import { UserAvatar } from '../UI/TaskComponents';
+import MobileHeader from '../UI/MobileHeader';
 
 const drawerWidth = 280;
 const collapsedDrawerWidth = 72;
