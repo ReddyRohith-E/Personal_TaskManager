@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const BACKEND_URL = process.env.BACKEND_URL || 'https://your-render-app.onrender.com';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://personal-taskmanager.onrender.com';
 const HEALTH_ENDPOINT = `${BACKEND_URL}/api/health`;
 const PING_INTERVAL = 8 * 60 * 1000; // 8 minutes in milliseconds
 

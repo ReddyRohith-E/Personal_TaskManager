@@ -16,10 +16,8 @@ jobs:
         RENDER_BACKEND_URL: https://personal-taskflow.onrender.com
       run: |
         echo "🌐 Pinging Render backend to keep it alive..."
-        # Replace with your actual Render backend URL
-        BACKEND_URL="$RENDER_BACKEND_URL"
-        # Replace with your actual Render backend URL
-        BACKEND_URL="https://personal-taskflow.onrender.com"
+        # Use the actual Render backend URL
+        BACKEND_URL="https://personal-taskmanager.onrender.com"
 
         if [ -z "$BACKEND_URL" ]; then
           echo "❌ RENDER_BACKEND_URL secret is not set!"

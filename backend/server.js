@@ -120,9 +120,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Serve static files from frontend build (for Vercel)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-}
+// NOTE: Commented out for separate Netlify + Render deployment
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// }
 
 // Connect to MongoDB using centralized database config
 const connectDB = require('./config/database');
@@ -203,11 +204,12 @@ app.use('/api/*', (req, res) => {
 });
 
 // Serve frontend for all non-API routes (SPA routing)
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-  });
-}
+// NOTE: Commented out for separate Netlify + Render deployment
+// if (process.env.NODE_ENV === 'production') {
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+//   });
+// }
 
 // Error handling middleware - move this before the last app.use call
 app.use((error, req, res, next) => {
@@ -291,6 +293,9 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+      if (process.env.NODE_ENV === 'production') {
+        console.log(`🌐 API Base URL: https://personal-taskmanager.onrender.com`);
+      }
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
