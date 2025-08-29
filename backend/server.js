@@ -7,20 +7,22 @@ const rateLimit = require('express-rate-limit');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
-// Load environment variables from root directory
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// Load environment variables from backend directory
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const server = http.createServer(app);
 
-// Configure allowed origins - Vercel deployment only
+// Configure allowed origins - Netlify and Fly.io deployment
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.FRONTEND_URL,
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
-  // Add your custom Vercel domain here when you set it up
-  // 'https://your-app-name.vercel.app'
+  // Netlify default domains
+  process.env.NETLIFY_URL ? `https://${process.env.NETLIFY_URL}` : null,
+  // Add your custom Netlify domain here when you set it up
+  // 'https://your-app-name.netlify.app'
 ].filter(Boolean);
 
 const io = socketIo(server, {

@@ -4,8 +4,8 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file from root directory
-  const env = loadEnv(mode, path.resolve(__dirname, '..'), '')
+  // Load env file from frontend directory
+  const env = loadEnv(mode, path.resolve(__dirname, '.'), '')
   
   return {
     plugins: [react()],

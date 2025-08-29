@@ -1,25 +1,39 @@
-# Personal Task Manager - Vercel Unified Deployment
+# Personal Task Manager - Netlify + Fly.io Deployment
 
-A full-stack task management application with real-time notifications, countdown timers, and comprehensive task organization features. **✅ READY FOR VERCEL DEPLOYMENT**
+A full-stack task management application with real-time notifications, countdown timers, and comprehensive task organization features. **✅ READY FOR NETLIFY + FLY.IO DEPLOYMENT**
 
 ## 🚀 Deployment Status
+## 🌍 Environment Variables Reference
 
-**🟢 UNIFIED VERCEL DEPLOYMENT**
-- **Platform**: Single Vercel deployment for both frontend and backend
-- **Backend**: Node.js serverless functions
-- **Frontend**: Static React build served from Vercel CDN
+### Backend (.env in /backend/)
+| Variable | Description | Development | Production |
+|----------|-------------|-------------|------------|
+| `NODE_ENV` | Environment mode | `development` | `production` |
+| `PORT` | Backend port | `5000` | Auto-set by Fly.io |
+| `MONGODB_URI` | Database connection | Your MongoDB Atlas URI | Same |
+| `JWT_SECRET` | JWT signing key | Your secret | Same |
+| `GMAIL_USER` | Gmail username | your_gmail@gmail.com | Same |
+| `GMAIL_APP_PASSWORD` | Gmail app password | Your app password | Same |
+| `FRONTEND_URL` | CORS origin | `http://localhost:5173` | Your Netlify URL |
+
+### Frontend (.env in /frontend/)
+| Variable | Description | Development | Production |
+|----------|-------------|-------------|------------|
+| `VITE_API_URL` | Backend API URL | `http://localhost:5000/api` | `https://your-fly-app.fly.dev/api` |
+| `VITE_SOCKET_URL` | Socket.io URL | `http://localhost:5000` | `https://your-fly-app.fly.dev` |FY + FLY.IO DEPLOYMENT**
+- **Frontend**: Netlify (static hosting with CDN)
+- **Backend**: Fly.io (Docker containerized Node.js)
 - **Database**: MongoDB Atlas (cloud)
 - **Real-time**: Socket.io enabled for live updates
-- **Environment**: Single `.env` file at project root
+- **Environment**: Separate environment variables for each service
 
-## 🎯 Key Advantages Over Render + Netlify
+## 🎯 Key Advantages
 
-✅ **No Cold Starts**: Vercel doesn't spin down like Render's free tier  
-✅ **Better Performance**: Global CDN for frontend, edge functions for backend  
-✅ **Unified Deployment**: Single command deploys both frontend and backend  
-✅ **Automatic HTTPS**: SSL certificates managed automatically  
-✅ **Zero Config**: Minimal configuration required  
-✅ **Better Free Tier**: More generous limits than Render free tier
+✅ **Optimized Performance**: Netlify's global CDN for frontend, Fly.io's containerized backend  
+✅ **Scalable Backend**: Fly.io handles traffic spikes better than serverless  
+✅ **Cost Effective**: Generous free tiers on both platforms  
+✅ **Easy Deployment**: Simple git-based deployments  
+✅ **Real-time Features**: Socket.io works seamlessly across platforms  
 
 ## 🚀 Key Features
 
@@ -75,19 +89,19 @@ A full-stack task management application with real-time notifications, countdown
 - Vercel Account (for deployment)
 
 ### Environment Configuration
-Create a single `.env` file in the project root with all environment variables:
 
+**Backend** (`.env` in `/backend/`):
 ```bash
-# =====================================
-# UNIFIED ENVIRONMENT CONFIGURATION
-# =====================================
-
-# General
+# Environment
 NODE_ENV=development
 
-# Backend Configuration
+# Server Configuration
 PORT=5000
+
+# Database Configuration
 MONGODB_URI=your_mongodb_atlas_connection_string
+
+# JWT Configuration
 JWT_SECRET=your_jwt_secret_key
 
 # Email Configuration
@@ -96,10 +110,15 @@ GMAIL_APP_PASSWORD=your_gmail_app_password
 GMAIL_FROM_NAME=Task Flow
 GMAIL_REPLY_TO=your_gmail@gmail.com
 
-# Frontend Configuration
+# CORS Configuration
+FRONTEND_URL=http://localhost:5173
+```
+
+**Frontend** (`.env` in `/frontend/`):
+```bash
+# API Configuration
 VITE_API_URL=http://localhost:5000/api
 VITE_SOCKET_URL=http://localhost:5000
-FRONTEND_URL=http://localhost:5173
 ```
 
 ### Installation
@@ -125,54 +144,77 @@ cd ../frontend && npm install
 cd .. && npm run dev
 ```
 
-### Deployment to Vercel
+### Deployment to Netlify + Fly.io
 
-1. **Install Vercel CLI**
+#### 1. Backend Deployment (Fly.io)
+
+1. **Install Fly CLI**
 ```bash
-npm install -g vercel
+# Windows (PowerShell)
+iwr https://fly.io/install.ps1 -useb | iex
 ```
 
-2. **Login to Vercel**
+2. **Login to Fly.io**
 ```bash
-vercel login
+fly auth login
 ```
 
-3. **Set Environment Variables in Vercel Dashboard**
-   - Go to your Vercel project settings
-   - Add all environment variables from your `.env` file
-   - Set `NODE_ENV=production`
-
-4. **Deploy**
+3. **Initialize Fly app**
 ```bash
-npm run deploy:vercel
+cd backend
+fly launch
+# Follow prompts, choose region, etc.
 ```
+
+4. **Set Environment Variables**
+```bash
+fly secrets set NODE_ENV=production
+fly secrets set MONGODB_URI=your_mongodb_atlas_uri
+fly secrets set JWT_SECRET=your_jwt_secret
+fly secrets set GMAIL_USER=your_gmail@gmail.com
+fly secrets set GMAIL_APP_PASSWORD=your_app_password
+fly secrets set FRONTEND_URL=https://your-netlify-site.netlify.app
+```
+
+5. **Deploy Backend**
+```bash
+fly deploy
+```
+
+#### 2. Frontend Deployment (Netlify)
+
+1. **Connect Repository**
+   - Go to [Netlify](https://netlify.com)
+   - Connect your GitHub repository
+   - Set build command: `npm run build`
+   - Set publish directory: `dist`
+
+2. **Set Environment Variables in Netlify**
+   - `VITE_API_URL`: `https://your-fly-app.fly.dev/api`
+   - `VITE_SOCKET_URL`: `https://your-fly-app.fly.dev`
+
+3. **Deploy Frontend**
+   - Push to main branch or trigger manual deploy
 
 ## 📁 Project Structure
 
 ```
 ToDo/
-├── .env                    # ← SINGLE environment file for everything
-├── package.json           # Root package with unified scripts
-├── vercel.json            # Vercel deployment configuration
+├── .env.example                    # ← Environment variables template
 ├── backend/
-│   ├── server.js          # Main server file (loads root .env)
-│   ├── package.json       # Backend dependencies
-│   ├── config/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── services/
-│   └── utils/
+│   ├── .env                        # ← Backend environment variables
+│   ├── server.js                   # ← Loads .env from backend directory
+│   ├── package.json
+│   ├── Dockerfile
+│   ├── fly.toml
+│   └── ... (other backend files)
 ├── frontend/
-│   ├── vite.config.js     # Configured to use root .env
-│   ├── package.json       # Frontend dependencies
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       ├── services/
-│       └── utils/
-└── docs/
+│   ├── .env                        # ← Frontend environment variables
+│   ├── vite.config.js              # ← Loads .env from frontend directory
+│   ├── package.json
+│   ├── netlify.toml
+│   └── ... (other frontend files)
+└── README.md
 ```
 
 ## 🔄 API Endpoints
@@ -258,24 +300,22 @@ npm run clean          # Clean all node_modules and dist folders
 - 📅 Calendar integration
 - 🎤 Voice commands
 
-## 🆚 Migration Benefits
+## 🆚 Deployment Benefits
 
-### Before (Render + Netlify)
-❌ Backend spins down after 15 minutes  
-❌ Cold start delays (up to 1 minute)  
-❌ Separate deployments to manage  
-❌ CORS complexity between platforms  
-❌ Limited free tier resources  
+### Netlify + Fly.io Advantages
+✅ **Global CDN**: Netlify's worldwide CDN for fast frontend loading  
+✅ **Containerized Backend**: Fly.io runs your app in Docker containers  
+✅ **Persistent Connections**: Fly.io keeps your backend running 24/7  
+✅ **Real-time Ready**: Socket.io works perfectly with persistent backend  
+✅ **Easy Scaling**: Both platforms scale automatically  
+✅ **Developer Friendly**: Great developer experience and tooling  
 
-### After (Unified Vercel)
-✅ Serverless functions stay warm longer  
-✅ Near-instant cold starts (< 1 second)  
-✅ Single deployment command  
-✅ Automatic CORS handling  
-✅ Better free tier limits  
-✅ Global CDN for faster loading  
-
-## 🤝 Contributing
+### Architecture Overview
+- **Frontend**: React SPA hosted on Netlify
+- **Backend**: Node.js API running on Fly.io
+- **Database**: MongoDB Atlas (cloud)
+- **Real-time**: Socket.io for live updates
+- **Email**: Gmail SMTP for notifications
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
@@ -289,4 +329,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Ready for deployment!** 🚀 Your app is now configured for optimal performance on Vercel's unified platform.
+**Ready for deployment!** 🚀 Your app is now configured for optimal performance on Netlify + Fly.io.
