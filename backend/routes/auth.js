@@ -38,8 +38,9 @@ router.post('/register', registerValidation, async (req, res, next) => {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Create new user
+    // Create new user (set required 'name' field)
     const user = new User({
+      name: `${firstName} ${lastName}`.trim(),
       email,
       password,
       profile: {
