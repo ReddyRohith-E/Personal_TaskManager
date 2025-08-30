@@ -422,15 +422,17 @@ class NotificationService {
 
   async logNotification({ userId, taskId, type, recipient, message, status, externalId = null, error = null }) {
     try {
-      const query = `
-        INSERT INTO notification_logs 
-        (user_id, task_id, type, recipient, message, status, external_id, error_message, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-      `;
-      
-      await db.query(query, [
-        userId, taskId, type, recipient, message, status, externalId, error
-      ]);
+      const NotificationLog = require('../models/NotificationLog');
+      await NotificationLog.create({
+        userId,
+        taskId,
+        type,
+        recipient,
+        message,
+        status,
+        externalId,
+        error
+      });
     } catch (logError) {
       console.error('❌ Failed to log notification:', logError);
     }

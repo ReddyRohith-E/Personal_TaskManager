@@ -11,6 +11,8 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
+// Trust first proxy for correct rate-limit and IP handling (Render/Netlify/production)
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 // Configure allowed origins - Netlify and Render deployment

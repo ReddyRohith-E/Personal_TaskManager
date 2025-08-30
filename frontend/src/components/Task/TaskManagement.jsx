@@ -363,7 +363,6 @@ const TaskManagement = () => {
     try {
       const { task, type, email } = testNotificationDialog;
       const endpoint = `/api/tasks/${task._id}/test-notification`;
-      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -384,16 +383,24 @@ const TaskManagement = () => {
           severity: 'success' 
         });
       } else {
-        throw new Error('Failed to send test notification');
+        let errorMsg = 'Failed to send test notification';
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch {}
+        setSnackbar({ 
+          open: true, 
+          message: errorMsg, 
+          severity: 'error' 
+        });
       }
     } catch (error) {
       setSnackbar({ 
         open: true, 
-        message: 'Failed to send test notification', 
+        message: error.message || 'Failed to send test notification', 
         severity: 'error' 
       });
     }
-    
     setTestNotificationDialog({ open: false, task: null, type: null, email: '' });
   };
 

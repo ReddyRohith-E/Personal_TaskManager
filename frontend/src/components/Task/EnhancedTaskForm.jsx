@@ -470,7 +470,7 @@ const EnhancedTaskForm = ({ open, onClose, onSubmit, task = null, isEditing = fa
                   label="Legacy Reminder Time"
                   value={formData.reminderTime}
                   onChange={(date) => handleChange('reminderTime', date)}
-                  format="dd-MM-yyyy HH:mm"
+                  format="dd-MM-yyyy hh:mm a "
                   slotProps={{
                     textField: {
                       fullWidth: true,
