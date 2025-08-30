@@ -362,7 +362,7 @@ const TaskManagement = () => {
   const sendTestNotification = async () => {
     try {
       const { task, type, email } = testNotificationDialog;
-      const endpoint = `/api/tasks/${task._id}/test-notification`;
+      const endpoint = `/api/tasks/${task._id}/test-notification`; // Updated to match backend POST route
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {

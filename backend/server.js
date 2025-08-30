@@ -416,6 +416,25 @@ app.get('/', (req, res) => {
   res.json(endpoints);
 });
 
+// Update the route to handle POST requests for test notifications
+app.post('/api/tasks/:id/test-notification', (req, res) => {
+    const { id } = req.params;
+    const { type, email, customMessage } = req.body;
+
+    // Log the request for debugging
+    console.log(`Received test notification request for task ID: ${id}, type: ${type}, email: ${email}`);
+
+    // Simulate task existence check (replace with actual DB logic)
+    const taskExists = true; // Replace with actual database query
+
+    if (!taskExists) {
+        return res.status(404).json({ error: 'Task not found' });
+    }
+
+    // Simulate sending a test notification (replace with actual logic)
+    res.status(200).json({ message: `Test ${type} notification sent for task ID: ${id}` });
+});
+
 // Load routes safely
 console.log('Loading routes...');
 
